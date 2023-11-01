@@ -8,6 +8,7 @@
 
 ### Resources
 MLDB Lyrics API: https://www.mldb.org/
+
 Lyrics Information Processing: Analysis, Generation, and Applications: https://aclanthology.org/2020.nlp4musa-1.2/
 
 NLP Song Lyrics Analysis on Kaggle: https://www.kaggle.com/code/marzenah/song-lyrics-analysis-nlp
