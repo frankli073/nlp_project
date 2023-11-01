@@ -17,3 +17,5 @@ NLP Song Lyrics Analysis on Kaggle: https://www.kaggle.com/code/marzenah/song-ly
 DeepRapper: Neural Rap Generation with Rhyme and Rhythm Modeling https://aclanthology.org/2021.acl-long.6/
 - The paper introduces DeepRapper, the first system to generate rap incorporating both rhymes and rhythms, achieved through a Transformer-based model using a unique dataset and specialized language modeling techniques, proven to generate high-quality and creative raps through evaluations.
 
+Lyrics Information Processing: https://aclanthology.org/2020.nlp4musa-1.2.pdf
+- Section 2 describes how lyrics are different from regular text.
