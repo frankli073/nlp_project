@@ -41,6 +41,9 @@ class Annotator:
                         pairs.append((i,i+j))
                 except Exception: continue
         return pairs
+
+    def annotate_rhyme_pairs(self, poems_data_row):
+        return self.find_rhyme_pairs(poems_data_row["Content"].split('\n'))
     
     def get_phoneme(self, word):
         return self.__phoneme_table[word.upper()]
@@ -49,6 +52,7 @@ class Annotator:
     # and returns true if this syllable and the ones following it match
     # those in the otherword
     def is_rhyme(self, word, otherword):
+        if word.upper() == otherword.upper(): return false
         try:
             wordphonemes = self.get_phoneme(word)
             otherwordphonemes = self.get_phoneme(otherword)
@@ -66,7 +70,11 @@ class Annotator:
             else: break'''
         rhymephonemes = wordphonemes[ind:]
         return otherwordphonemes[-len(rhymephonemes):] == rhymephonemes
-                        
+
+def decode_content(poem_data_row):
+    poem_data_row["Content"] = unidecode.unidecode(poem_data_row["Content"])
+    return poem_data_row
+
 def main():
     print("Test:\n")
     annotator = Annotator()
@@ -77,14 +85,25 @@ def main():
     print(annotator.is_rhyme("love", "glove"))
     print(annotator.is_rhyme("punctual", "ethical"))
 
-    poems = pd.read_csv("data/poem_dataset_raw.csv")
-    poem2 = unidecode.unidecode(poems["Content"].get(2)).split('\n')
+    poems = pd.read_csv("data/poem_dataset_raw.csv").apply(decode_content, axis=1)
+    poem2 = poems["Content"].get(2).split('\n')
     poem2_endline2 = poem2[2].split()[-1]
     poem2_endline3 = poem2[3].split()[-1]
     print(annotator.is_rhyme(poem2_endline2, poem2_endline3))
 
     poem2_rhyme_pairs = annotator.find_rhyme_pairs(poem2)
     print(poem2_rhyme_pairs)
+
+    poems["Rhyme pairs"] = poems.apply(annotator.annotate_rhyme_pairs, axis=1)
+    # Filter out poems without rhyme pairs
+    poems = poems[poems["Rhyme pairs"].apply(lambda x: len(x)) > 0]
+    rhyme_pair_count = 0
+    for index, row in poems.iterrows():
+        content = row["Content"].split('\n')
+        for rhyme_pair in row["Rhyme pairs"]:
+            rhyme_pair_count += 1
+            print("{} {}".format(content[rhyme_pair[0]].split()[-1], content[rhyme_pair[1]].split()[-1]))
+    print("Found {} rhymes".format(rhyme_pair_count))
 
 if __name__ == '__main__':
     main()
