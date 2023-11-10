@@ -1,16 +1,19 @@
 import pandas as pd
-import pronouncing
-import os
 import unidecode
+import string
+import re
 
 class Annotator:
     def __init__(self):
         self.__phoneme_table = self.__create_phoneme_table()
 
     def __create_phoneme_table(self):
-        # the phoneme table is a pandas DataFrame of columns "words" and
-        # "phonemes" the phoneme being the list of phonemes corresponding
-        # to that word in the CMU Pronouncing Dictionary
+        # the phoneme table is a python dictionary of indexed by the
+        # word and the value is the a list of list of phonemes.
+        # the elements in the outer list correspond to alternate
+        # pronounciations of the word, and the inner list is the
+        # sequence of phonemes corresponding to that word in the
+        # CMU Pronouncing Dictionary
         table = dict()
 
         with open("data/processing/cmu_pronuncing_dict/cmudict-0.7b", 'r', encoding="iso8859_2") as cmu_dict_file:
@@ -21,13 +24,13 @@ class Annotator:
                     line = next(cmu_dict_file).split()
                 except StopIteration:
                     break
-                table[line[0]] = line[1:]
-
+                line[0] = re.sub(r'\([0-9]\)', '', line[0])
+                if line[0] in table.keys():
+                    table[line[0]].append(line[1:])
+                else: table[line[0]] = [line[1:]]
         return table
     
-    # expects lyrics as a list of lines of words,
-    # the first index indexes the line
-    # the second index indexes the word in that line
+    # expects lyrics as a list of sentences
     def find_rhyme_pairs(self, lyrics):
         # pairs is a list of tuples, the tuples represent pairs of indices
         # corresponding to lines that rhyme together
@@ -45,31 +48,44 @@ class Annotator:
     def annotate_rhyme_pairs(self, poems_data_row):
         return self.find_rhyme_pairs(poems_data_row["Content"].split('\n'))
     
-    def get_phoneme(self, word):
+    def get_phonemes_list(self, word):
         return self.__phoneme_table[word.upper()]
     
-    # finds the last syllable in the word with primary or secondary stress,
-    # and returns true if this syllable and the ones following it match
-    # those in the otherword
-    def is_rhyme(self, word, otherword):
-        if word.upper() == otherword.upper(): return false
+    # if ignore_stress=False, finds the last syllable in the word with
+    # primary or secondary stress, and returns true if this syllable
+    # and the ones following it match those in the otherword
+    # if ignore_stress=True, only finds the last syllable regardless of
+    # stress and matches it to the other word's.
+    def is_rhyme(self, word, otherword, ignore_stress=False):
+        include_stress = ['1','2']
+        if ignore_stress: include_stress.append('0')
+
+        word = word.upper().strip(string.punctuation)
+        otherword = otherword.upper().strip(string.punctuation)
+        # A word cannot rhyme with itself
+        if word == otherword: return False
+
         try:
-            wordphonemes = self.get_phoneme(word)
-            otherwordphonemes = self.get_phoneme(otherword)
+            wordphonemes_list = self.get_phonemes_list(word)
+            otherwordphonemes_list = self.get_phonemes_list(otherword)
+        # if the word is not in CMU dictionary return False
         except KeyError: return False
-        ind = 0
-        for i in reversed(range(len(wordphonemes))):
-            # checks if the phoneme has character 1 or 2 at the end, i.e.
-            # if it's a vowel with primary or secondary stress
-            if wordphonemes[i][-1] in ['1','2']:
-                ind = i
-                break
-        '''while ind > 0:
-            if wordphonemes[ind-1][-1] not in ['0','1','2']:
-                ind -= 1
-            else: break'''
-        rhymephonemes = wordphonemes[ind:]
-        return otherwordphonemes[-len(rhymephonemes):] == rhymephonemes
+
+        # wordphonemes_list and otherwordphonemes_list are lists of lists
+        # of phonemes retrieved from the table, for different pronounciations
+        # of each word.
+        for wordphonemes in wordphonemes_list:
+            for otherwordphonemes in otherwordphonemes_list:
+                ind = 0
+                for i in reversed(range(len(wordphonemes))):
+                    # checks if the phoneme has character 1 or 2 at the end, i.e.
+                    # if it's a vowel with primary or secondary stress
+                    if wordphonemes[i][-1] in include_stress:
+                        ind = i
+                        break
+                rhymephonemes = wordphonemes[ind:]
+                if otherwordphonemes[-len(rhymephonemes):] == rhymephonemes: return True
+        return False
 
 def decode_content(poem_data_row):
     poem_data_row["Content"] = unidecode.unidecode(poem_data_row["Content"])
