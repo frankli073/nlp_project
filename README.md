@@ -1,4 +1,4 @@
-# NLP Final Project 
+# Rhyme Generator 
 - [1. Abstract](#1)
 - [Resources](#resources)
 
