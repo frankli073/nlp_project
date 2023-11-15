@@ -1,6 +1,7 @@
 # Rhyme Generator Proposal
 - [1. Members and Collaboration Plan]
-- [2. Introduction](#resources)
+- [2. Introduction]
+- [3. Methodology]
 
 ### 1. Members and Collaboration Plan: 
 Ruiyang Chen: research, writing paper, data engineering(2.c, 2.d, 4.a.iii)
@@ -12,34 +13,48 @@ Frank Li: data gathering (1), data engineering(2.c, 2.d), hyperparameters tuning
 Steven Zhang: Evaluation analysis design, error analysis design. Theoretical problem expert, data engineering(4.a.i, 4.a.ii, 4.a.iv)
 
 ### 2. Introduction:
-We propose a rhyme generator for incomplete verses or lyrics. In NLP, the distinct nature of lyrics is often overlooked, since most of the algorithms focus on the generation of prose texts. Lyrics convey messages through an emotional manner, and the significance of lyrics is often highlighted by how it makes songs more appealing. The distinct characteristic of lyrics is underscored by the rhyming nature that ties together the words at the end of each line. Our algorithm is intended to generate rhymed words for incomplete sentences (or generate rhymed sentences as lyrics).
-Methodology:
-	We propose a comprehensive plan to annotate the Poetry Foundation’s publicly available dataset using the CMU Pronouncing Dictionary (using both pronunciation and syllable stress markers) and NLTK part-of-speech tagger. For each word in a poem, we will attach both annotations in order to better model the function of each word in a poem. Based on (Suharto, 2004 ), we find that syllable stress is extremely predictive of a word’s position as well as its function in a particular sonnet. We also find that syllable pronunciation will be useful for the model to predict n-gram rhyming schemes (Tanasescu, Paget, & Inkpen, 2016).
-	After compiling our annotated dataset we will add the rhyme scheme feature to the poem genres which employ a strict rhyme scheme – these include coupled rhyme (AA BB CC), ballade (ABAB BCBC), monorhyme (AAA..), enclosed rhyme (ABBA), etc. For other poem genres, such as haiku, which need not rhyme but employ other schemes, we’ll simply omit them from this stage of training, as we concentrate on rhyme generation. We will then split prompt (first line – A) and response (differing number of lines based on poem genre – A, BA, BBA, BCA, etc.) based on the poem genre feature, in order to build the fine-tuning dataset. This will serve as the finalized dataset to be used in training.
+
+	We propose a rhyme generator for incomplete verses or lyrics. In NLP, the distinct nature of lyrics is often overlooked, since most of the algorithms focus on the generation of prose texts. Lyrics convey messages through an emotional manner, and the significance of lyrics is often highlighted by how it makes songs more appealing. The distinct characteristic of lyrics is underscored by the rhyming nature that ties together the words at the end of each line. Our algorithm is intended to generate rhymed words for incomplete sentences (or generate rhymed sentences as lyrics).
+
+### 3. Methodology:
+	
+ 	We propose a comprehensive plan to annotate the Poetry Foundation’s publicly available dataset using the CMU Pronouncing Dictionary (using both pronunciation and syllable stress markers) and NLTK part-of-speech tagger. For each word in a poem, we will attach both annotations in order to better model the function of each word in a poem. Based on (Suharto, 2004 ), we find that syllable stress is extremely predictive of a word’s position as well as its function in a particular sonnet. We also find that syllable pronunciation will be useful for the model to predict n-gram rhyming schemes (Tanasescu, Paget, & Inkpen, 2016).
+	
+ 	After compiling our annotated dataset we will add the rhyme scheme feature to the poem genres which employ a strict rhyme scheme – these include coupled rhyme (AA BB CC), ballade (ABAB BCBC), monorhyme (AAA..), enclosed rhyme (ABBA), etc. For other poem genres, such as haiku, which need not rhyme but employ other schemes, we’ll simply omit them from this stage of training, as we concentrate on rhyme generation. We will then split prompt (first line – A) and response (differing number of lines based on poem genre – A, BA, BBA, BCA, etc.) based on the poem genre feature, in order to build the fine-tuning dataset. This will serve as the finalized dataset to be used in training.
 After these steps, we will fine-tune from among 5 publicly available open-sourced models – OpenAI’s GPT and Codex, BERT, XLNet, and CTRL – in order to model rhyme and verse generation and poem generation based on an input line of text. We will employ hyperparameter tuning and evaluation throughout the process of training.
-	We additionally propose two more pathways for additional work: one specifically using melody to model pop lyrics generation, improving on the work of (Watanabe et al, 2018); and one specifically using beat to model rap lyric generation, improving on the work of (Xue, 2021). These two additional datasets will be an opportunity to further fine-tune our models to generate genre-specific poetry and/or lyrics, and will be more open-ended in terms of rhyming structure.
+	
+ 	We additionally propose two more pathways for additional work: one specifically using melody to model pop lyrics generation, improving on the work of (Watanabe et al, 2018); and one specifically using beat to model rap lyric generation, improving on the work of (Xue, 2021). These two additional datasets will be an opportunity to further fine-tune our models to generate genre-specific poetry and/or lyrics, and will be more open-ended in terms of rhyming structure.
 We will also use this opportunity to further finetune models like DeepRapper (Xue, 2021) with the CMU Pronouncing Dictionary and NLTK part-of-speech tags annotations in order to improve modeling of underlying part-of-speech, word-stress, and syllable patterns in rap lyrics.
 
-Data Gathering
-Use poetry foundation .org dataset.
-Data Wrangling and Processing
-Add CMU pronunciation + syllable stress for each word.
-Add NLTK POS tags to each word.
-Optional: create an additional dataset with a [beat] marker to model rap lyrics.
-Optional: create an additional dataset with MIDI, tying pop lyrics to the melody.
-Feature Engineering and Extraction
-Poem genre - optional feature.
-Rhyming structure (i.e. AABB) based on poem genre - optional feature.
-Training
-Fine tune publicly available models using our custom dataset:
-Simple LSTM
-Simple RNN
-GPT
-BERT
-OpenAI’s Codex
-XLNet
-CTRL
-Hyperparameters Tuning and Evaluation
+### 4. Roadmap
+1. Data Gathering 
+- Use poetry foundation .org dataset.
+2. Data Wrangling and Processing
+- Add CMU pronunciation + syllable stress for each word.
+- Add NLTK POS tags to each word.
+- Optional: create an additional dataset with a [beat] marker to model rap lyrics.
+- Optional: create an additional dataset with MIDI, tying pop lyrics to the melody.
+3. Feature Engineering and Extraction
+- Poem genre - optional feature.
+- Rhyming structure (i.e. AABB) based on poem genre - optional feature.
+4. Training
+- Fine tune publicly available models using our custom dataset:
+
+4.1 Simple LSTM
+
+4.2 Simple RNN
+
+4.3 GPT
+
+4.4 BERT
+
+4.5 OpenAI’s Codex
+
+4.6 XLNet
+
+4.7 CTRL
+
+5. Hyperparameters Tuning and Evaluation
 Adjust hyperparameters for deep learning models
 Include different features of the language itself, such as context, previous word, sentence structures, and etc.
 Evaluation Plan and Error Analysis:
