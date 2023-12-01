@@ -2,6 +2,12 @@ import pandas as pd
 import unidecode
 import string
 import re
+from nltk.tag import pos_tag
+from nltk.tokenize import word_tokenize
+import nltk
+
+nltk.download('punkt')
+nltk.download('averaged_perceptron_tagger')
 
 class Annotator:
     def __init__(self):
@@ -47,6 +53,9 @@ class Annotator:
 
     def annotate_rhyme_pairs(self, poems_data_row):
         return self.find_rhyme_pairs(poems_data_row["Content"].split('\n'))
+    
+    def annotate_POS_tags(self, poems_data_row):
+        return [pos_tag(word_tokenize(line)) for line in poems_data_row["Content"].split('\n')]
     
     def get_phonemes_list(self, word):
         return self.__phoneme_table[word.upper()]
@@ -111,6 +120,7 @@ def main():
     print(poem2_rhyme_pairs)
 
     poems["Rhyme pairs"] = poems.apply(annotator.annotate_rhyme_pairs, axis=1)
+    poems["POS tags"] = poems.apply(annotator.annotate_POS_tags, axis=1)
     # Filter out poems without rhyme pairs
     poems = poems[poems["Rhyme pairs"].apply(lambda x: len(x)) > 0]
     rhyme_pair_count = 0
