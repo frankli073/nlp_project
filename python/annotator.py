@@ -22,7 +22,7 @@ class Annotator:
         # CMU Pronouncing Dictionary
         table = dict()
 
-        with open("data/processing/cmu_pronuncing_dict/cmudict-0.7b", 'r', encoding="iso8859_2") as cmu_dict_file:
+        with open("../data/processing/cmu_pronuncing_dict/cmudict-0.7b", 'r', encoding="iso8859_2") as cmu_dict_file:
             for i in range(126):
                 next(cmu_dict_file)
             while True:
@@ -110,7 +110,7 @@ def main():
     print(annotator.is_rhyme("love", "glove"))
     print(annotator.is_rhyme("punctual", "ethical"))
 
-    poems = pd.read_csv("data/poem_dataset_raw.csv").apply(decode_content, axis=1)
+    poems = pd.read_csv("../data/poem_dataset_raw.csv").apply(decode_content, axis=1)
     poem2 = poems["Content"].get(2).split('\n')
     poem2_endline2 = poem2[2].split()[-1]
     poem2_endline3 = poem2[3].split()[-1]
